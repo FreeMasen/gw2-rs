@@ -17,6 +17,7 @@ pub struct Story {
     pub description: String,
     pub timeline: String,
     pub level: u64,
+    #[serde(default)]
     pub races: Vec<String>,
     pub order: u64,
     pub chapters: Vec<Chapter>,

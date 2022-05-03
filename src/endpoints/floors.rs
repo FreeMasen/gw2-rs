@@ -1,7 +1,5 @@
 use crate::codec::floors as codec;
 
-
-
 pub async fn continents(
     api_base_url: &str, api_key: &str
 ) -> Vec<u64> {

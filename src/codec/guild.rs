@@ -30,12 +30,7 @@ pub struct Log {
     pub time: String,
     #[serde(flatten, rename = "type")]
     pub kind: LogInfo,
-    pub user: String,
-    pub kicked_by: Option<String>,
-    pub motd: Option<String>,
-    pub changed_by: String,
-    pub old_rank: String,
-    pub new_rand: String,
+
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -49,7 +44,7 @@ pub enum LogInfo {
         kicked_by: String,
     },
     RankChange {
-        changed_by: String,
+        changed_by: Option<String>,
         old_rank: String,
         new_rank: String,
     },
@@ -72,6 +67,11 @@ pub enum LogInfo {
         count: Option<u64>,
         action: String,
     },
+    Influence {
+        activity: String,
+        total_participants: u64,
+        participants: Vec<serde_json::Value>,
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -100,7 +100,7 @@ pub struct Stash {
     pub upgrade_id: u64,
     pub size: u64,
     pub coins: u64,
-    pub note: String,
+    pub note: Option<String>,
     pub inventory: Vec<Option<StashEntry>>,
 }
 
@@ -158,7 +158,7 @@ pub struct TeamSeason {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Treasury {
-    pub id: u64,
+    pub item_id: u64,
     pub count: u64,
     pub needed_by: Vec<TreasuryUpgrade>,
 }

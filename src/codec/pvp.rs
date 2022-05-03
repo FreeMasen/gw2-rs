@@ -83,6 +83,8 @@ pub struct Leader {
     pub rank: u64,
     pub date: String,
     pub scores: Vec<LeaderScore>,
+    pub team: Option<String>,
+    pub team_id: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

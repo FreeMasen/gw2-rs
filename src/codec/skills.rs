@@ -5,10 +5,11 @@ pub struct Skill {
     pub name: String,
     pub description: String,
     #[serde(rename = "type")]
-    pub kind: String,
+    pub kind: Option<String>,
     pub weapon_type: Option<String>,
+    #[serde(default)]
     pub professions: Vec<String>,
-    pub slot: String,
+    pub slot: Option<String>,
     pub icon: String,
     pub flags: Vec<String>,
     pub id: u64,

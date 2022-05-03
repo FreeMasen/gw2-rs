@@ -14,6 +14,7 @@ pub mod specializations;
 pub mod stories;
 pub mod token_info;
 pub mod traits;
+pub mod wvw;
 
 pub async fn cats(api_base_url: &str, api_key: &str) -> Vec<u64> {
     let client = reqwest::Client::new();
