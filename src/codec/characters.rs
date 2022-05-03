@@ -13,13 +13,13 @@ pub struct Character {
     pub gender: String,
     pub profession: String,
     pub level: u8,
-    pub guild: Uuid,
+    pub guild: Option<Uuid>,
     pub created: String,
     pub age: u64,
     pub deaths: u64,
-    pub title: u64,
+    pub title: Option<u64>,
     pub crafting: Vec<Craft>,
-    pub backstory: Vec<u64>,
+    pub backstory: Vec<String>,
     pub equipment: Vec<EquipmentPiece>,
     pub bags: Vec<Option<Bag>>,
     pub recipes: Vec<u64>,
@@ -43,7 +43,7 @@ pub struct Craft {
 pub struct EquipmentPiece {
     pub id: u64,
     pub slot: String,
-    pub binding: String,
+    pub binding: Option<String>,
     pub bound_to: Option<String>,
     pub stats: Option<super::ItemStats>,
     #[serde(default)]
@@ -56,7 +56,7 @@ pub struct EquipmentPiece {
 pub struct Bag {
     pub id: u64,
     pub size: u64,
-    pub inventory: Vec<InventoryItem>,
+    pub inventory: Vec<Option<InventoryItem>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -83,8 +83,8 @@ pub struct Skill {
     #[serde(default)]
     pub legends: Vec<String>,
     pub heal: u64,
-    pub utility: Vec<u64>,
-    pub elite: u64,
+    pub utilities: Vec<Option<u64>>,
+    pub elite: Option<u64>,
     pub pets: Option<PetSkills>,
 }
 
@@ -103,15 +103,15 @@ pub struct Specializations {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Specialization {
-    pub id: u64,
+    pub id: Option<u64>,
     pub traits: Vec<Option<u64>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PvPEquipmentPiece {
-    pub amulet: u64,
-    pub rune: u64,
-    pub sigils: Vec<u64>,
+    pub amulet: Option<u64>,
+    pub rune: Option<u64>,
+    pub sigils: Vec<Option<u64>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -128,7 +128,7 @@ pub struct Core {
     pub gender: String,
     pub profession: String,
     pub level: u64,
-    pub guild: Uuid,
+    pub guild: Option<Uuid>,
     pub created: String,
     pub age: u64,
     pub deaths: u64,
@@ -137,6 +137,11 @@ pub struct Core {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Crafting {
     pub crafting: Vec<Craft>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Recipes {
+    pub recipes: Vec<u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -168,7 +173,7 @@ pub struct SabUnlock {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SabSong {
     pub id: u64,
-    pub name: String,
+    pub name: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

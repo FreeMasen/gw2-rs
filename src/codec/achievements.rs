@@ -48,7 +48,7 @@ pub struct Group {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Achievement {
     pub id: u64,
-    pub icon: String,
+    pub icon: Option<String>,
     pub name: String,
     pub description: String,
     pub requirement: String,

@@ -4,6 +4,16 @@ use uuid::Uuid;
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Continent {
+    pub continent_dims: Vec<u64>,
+    pub floors: Vec<i64>,
+    pub id: u64,
+    pub max_zoom: u64,
+    pub min_zoom: u64,
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Floor {
     pub texture_dims: Vec<u64>,
     pub regions: HashMap<String, Region>,
@@ -24,14 +34,15 @@ pub struct Map {
     pub name: String,
     pub min_level: u64,
     pub max_level: u64,
-    pub default_floor: u64,
+    pub default_floor: i64,
     pub map_rect: Vec<Vec<i64>>,
     pub continent_rect: Vec<Vec<i64>>,
     pub adventures: Vec<Adventure>,
     pub points_of_interest: HashMap<String, Poi>,
     pub tasks: HashMap<String, Task>,
-    pub skill_challenges: HashMap<String, SkillChallenge>,
+    pub skill_challenges: Vec<SkillChallenge>,
     pub sectors: HashMap<String, Sector>,
+    #[serde(default)]
     pub god_shrines: Vec<GodShrine>,
     pub id: u64,
 }
@@ -41,7 +52,7 @@ pub struct Adventure {
     pub id: Uuid,
     pub name: String,
     pub description: String,
-    pub coords: Vec<f64>,
+    pub coord: Vec<f64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -65,16 +76,16 @@ pub struct Task {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct SkillChallenge {
     pub coord: Vec<f64>,
-    pub id: String,
+    pub id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Sector {
-    pub name: String,
+    pub name: Option<String>,
     pub level: u64,
     pub coord: Vec<f64>,
     pub id: u64,
-    pub bounds: Vec<f64>,
+    pub bounds: Vec<Vec<f64>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

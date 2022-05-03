@@ -132,8 +132,9 @@ pub struct UpgradeAttribute {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ItemStats {
-    pub name: String,
+    pub name: Option<String>,
     pub attributes: HashMap<String, f64>,
+    pub id: Option<u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

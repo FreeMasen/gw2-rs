@@ -1,6 +1,19 @@
 use serde::de::DeserializeOwned;
 
 pub mod account;
+pub mod achievements;
+pub mod backstory;
+pub mod characters;
+pub mod commerce;
+pub mod emblems;
+pub mod floors;
+pub mod guild;
+pub mod pvp;
+pub mod skills;
+pub mod specializations;
+pub mod stories;
+pub mod token_info;
+pub mod traits;
 
 pub async fn cats(api_base_url: &str, api_key: &str) -> Vec<u64> {
     let client = reqwest::Client::new();
@@ -472,19 +485,17 @@ pub async fn worlds(api_base_url: &str, api_key: &str) -> Vec<u64> {
     .await
 }
 
-
-
 pub async fn get_json<T>(client: reqwest::RequestBuilder) -> T
 where
     T: DeserializeOwned,
 {
-    let value: serde_json::Value = client.send().await.unwrap().json().await.unwrap();
-    match serde_json::from_value(value.clone()) {
+    let response = client.send().await.unwrap();
+    let body = response.text().await.unwrap();
+    match serde_json::from_str(&body) {
         Ok(ret) => ret,
         Err(e) => {
-            eprintln!("Invalid json: {}", e);
-            eprintln!("{}", serde_json::to_string_pretty(&value).unwrap());
-            panic!()
+            eprintln!("{}", body);
+            panic!("Invalid json: {:?}", e)
         }
     }
 }
