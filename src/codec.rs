@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use serde_enum_str::{Deserialize_enum_str, Serialize_enum_str};
 
 use std::collections::HashMap;
 
@@ -90,41 +91,411 @@ pub struct Glider {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Item {
     pub name: String,
-    pub description: String,
-    #[serde(rename = "type")]
-    pub kind: String,
+    pub description: Option<String>,
+    // #[serde(rename = "type")]
+    // pub kind: _ItemDetail,
     pub level: u64,
     pub rarity: String,
-    pub vender_value: u64,
-    pub game_types: String,
-    pub flags: Vec<()>,
-    pub restrictions: Vec<()>,
+    pub vender_value: Option<u64>,
+    pub game_types: Vec<String>,
+    pub flags: Vec<String>,
+    pub restrictions: Vec<String>,
     pub chat_link: String,
     pub icon: String,
-    pub details: ItemDetails,
+    #[serde(flatten)]
+    pub details: _ItemDetail,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(tag = "type", content = "details")]
+pub enum _ItemDetail {
+    Armor {
+        #[serde(rename = "type")]
+        kind: ArmorKind,
+        #[serde(flatten)]
+        details: ArmorDetails,
+    },
+    Back {
+        #[serde(default)]
+        infusion_slots: Vec<Infusion>,
+        attribute_adjustment: Option<f64>,
+        infix_upgrade: Option<Upgrade>,
+        suffix_item_id: Option<u64>,
+        #[serde(default)]
+        secondary_suffix_item_id: String,
+        #[serde(default)]
+        stat_choices: Vec<u64>,
+    },
+    Bag {
+        size: u64,
+        no_sell_or_sort: bool,
+    },
+    Consumable {
+        kind: ConsumableKind,
+        description: Option<String>,
+        duration_ms: Option<u64>,
+        unlock_type: Option<UnlockType>,
+        color_id: Option<u64>,
+        recipe_id: Option<u64>,
+        #[serde(default)]
+        extra_recipe_ids: Vec<u64>,
+        guild_upgrade_id: Option<u64>,
+        apply_count: Option<u64>,
+        name: Option<String>,
+        icon: Option<String>,
+        #[serde(default)]
+        skins: Vec<u64>,
+    },
+    Container {
+        #[serde(rename = "type")]
+        kind: ContainerKind,
+    },
+    CraftingMaterial,
+    Gathering {
+        #[serde(rename = "type")]
+        kind: GatheringKind,
+    },
+    Gizmo {
+        #[serde(rename = "type")]
+        kind: GizmoKind,
+        guild_upgrade_id: Option<u64>,
+        #[serde(default)]
+        vender_ids: Vec<u64>,
+    },
+    Key,
+    MiniPet {
+        minipet_id: u64,
+    },
+    Tool,
+    Trait,
+    Trinket {
+        #[serde(rename = "type")]
+        kind: TrinketKind,
+        #[serde(default)]
+        infusion_slots: Vec<Infusion>,
+        attribute_adjustment: Option<f64>,
+        infix_upgrade: Option<InfixUpgrade>,
+        suffix_item_id: Option<u64>,
+        #[serde(default)]
+        secondary_suffix_item_id: String,
+        #[serde(default)]
+        stat_choices: Vec<u64>,
+    },
+    Trophy,
+    UpgradeComponent {
+        #[serde(rename = "type")]
+        kind: UpgradeKind,
+        #[serde(default)]
+        flags: Vec<UpgradeFlag>,
+        #[serde(default)]
+        infusion_upgrade_flags: Vec<InfusionUpgradeFlag>,
+        #[serde(default)]
+        suffix: String,
+        infix_upgrade: Option<InfixUpgrade>,
+        #[serde(default)]
+        bonuses: Vec<String>,
+    },
+    Weapon {
+        #[serde(rename = "type")]
+        kind: WeaponKind,
+        #[serde(rename = "damage_type")]
+        damage_kind: DamageKind,
+        min_power: u64,
+        max_power: u64,
+        defense: u64,
+        #[serde(default)]
+        infusion_slots: Vec<Infusion>,
+        attribute_adjustment: Option<f64>,
+        infix_upgrade: Option<InfixUpgrade>,
+        suffix_item_id: Option<u64>,
+        #[serde(default)]
+        secondary_suffix_item_id: String,
+        #[serde(default)]
+        stat_choices: Vec<u64>,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ArmorKind {
+    Helm,
+    Shoulders,
+    Coat,
+    Gloves,
+    Leggings,
+    Boots,
+    HelmAquatic,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ConsumableKind {
+    AppearanceChange,
+    Booze,
+    ContractNpc,
+    Currency,
+    Food,
+    Generic,
+    Halloween,
+    Immediate,
+    MountRandomUnlock,
+    RandomUnlock,
+    Transmutation,
+    Unlock,
+    UpgradeRemoval,
+    Utility,
+    TeleportToFriend,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum UnlockType {
+    BagSlot,
+    BankTab,
+    Champion,
+    CollectibleCapacity,
+    Content,
+    CraftingRecipe,
+    Dye,
+    GliderSkin,
+    #[serde(rename = "Minipet")]
+    MiniPet,
+    #[serde(rename = "Ms")]
+    MountSkin,
+    Outfit,
+    RandomUnlock,
+    SharedSlot,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ContainerKind {
+    Default,
+    GiftBox,
+    Immediate,
+    #[serde(rename = "OpenUI")]
+    OpenUi,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum GatheringKind {
+    Foraging,
+    Logging,
+    Mining,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum GizmoKind {
+    Default,
+    ContainerKey,
+    RentableContractNpc,
+    UnlimitedConsumable,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum TrinketKind {
+    Accessory,
+    Amulet,
+    Ring,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum UpgradeKind {
+    Default,
+    Gem,
+    Rune,
+    Sigil,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum UpgradeFlag {
+    Axe,
+    Dagger,
+    Focus,
+    Greatsword,
+    Hammer,
+    Harpoon,
+    LongBow,
+    Mace,
+    Pistol,
+    Rifle,
+    Scepter,
+    Shield,
+    ShortBow,
+    Speargun,
+    Staff,
+    Sword,
+    Torch,
+    Trident,
+    Warhorn,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum InfusionUpgradeFlag {
+    Enrichment,
+    Infusion,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ArmorDetails {
+    pub weight_class: ArmorClass,
+    pub defense: u64,
+    #[serde(default)]
+    pub infusion_slots: Vec<Infusion>,
+    pub attribute_adjustment: Option<f64>,
+    pub infix_upgrade: Option<InfixUpgrade>,
+    pub suffix_item_id: Option<u64>,
+    #[serde(default)]
+    pub secondary_suffix_item_id: String,
+    #[serde(default)]
+    pub stat_choices: Vec<u64>,
+}
+
+#[derive(Deserialize_enum_str, Serialize_enum_str, Debug, Clone)]
+pub enum ArmorClass {
+    Heavy,
+    Medium,
+    Light,
+    Clothing,
+}
+
+#[derive(Deserialize_enum_str, Serialize_enum_str, Debug, Clone)]
+pub enum ItemKind {
+    Armor,
+    Back,
+    Bag,
+    Consumable,
+    Container,
+    CraftingMaterial,
+    Gathering,
+    Gizmo,
+    Key,
+    MiniPet,
+    Tool,
+    Trait,
+    Trinket,
+    Trophy,
+    UpgradeComponent,
+    Weapon,
+    #[serde(other)]
+    Other(String),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ItemDetails {
     #[serde(rename = "type")]
-    pub kind: String,
-    pub damage_type: String,
-    pub min_power: u64,
-    pub max_power: u64,
-    pub defense: u64,
-    pub infusion_slots: Vec<u64>,
-    pub attribute_adjustment: f64,
-    pub secondary_suffix_item_id: u64,
-    pub infix_upgrade: Upgrade,
+    pub kind: Option<String>,
+    pub damage_type: Option<String>,
+    pub min_power: Option<u64>,
+    pub max_power: Option<u64>,
+    pub defense: Option<u64>,
+    #[serde(default)]
+    pub infusion_slots: Vec<Infusion>,
+    pub attribute_adjustment: Option<f64>,
+    pub secondary_suffix_item_id: Option<String>,
+    pub infix_upgrade: Option<Upgrade>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InfixUpgrade {
+    pub id: u64,
+    pub attributes: Vec<InfixUpgradeAttribute>,
+    pub buff: Option<InfixUpgradeAttributeBuff>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InfixUpgradeAttribute {
+    pub attribute: InfixUpgradeAttributeAttribute,
+    pub modifier: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum InfixUpgradeAttributeAttribute {
+    AgonyResistance,
+    BoonDuration,
+    ConditionDamage,
+    ConditionDuration,
+    CritDamage,
+    Healing,
+    Power,
+    Precision,
+    Toughness,
+    Vitality,
+}
+
+impl std::fmt::Display for InfixUpgradeAttributeAttribute {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                InfixUpgradeAttributeAttribute::AgonyResistance => "Agony Resistance",
+                InfixUpgradeAttributeAttribute::BoonDuration => "Concentration",
+                InfixUpgradeAttributeAttribute::ConditionDamage => "Condition Damage",
+                InfixUpgradeAttributeAttribute::ConditionDuration => "Expertise",
+                InfixUpgradeAttributeAttribute::CritDamage => "Ferocity",
+                InfixUpgradeAttributeAttribute::Healing => "Healing",
+                InfixUpgradeAttributeAttribute::Power => "Power",
+                InfixUpgradeAttributeAttribute::Precision => "Precision",
+                InfixUpgradeAttributeAttribute::Toughness => "Toughness",
+                InfixUpgradeAttributeAttribute::Vitality => "Vitality",
+            }
+        )
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct InfixUpgradeAttributeBuff {
+    pub skill_id: u64,
+    pub description: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum WeaponKind {
+    Axe,
+    Dagger,
+    Mace,
+    Pistol,
+    Scepter,
+    Sword,
+    Focus,
+    Shield,
+    Torch,
+    Warhorn,
+    Greatsword,
+    Happer,
+    LongBow,
+    Rifle,
+    ShortBow,
+    Staff,
+    Harpoon,
+    Speargun,
+    Trident,
+    LargeBundle,
+    SmallBundle,
+    Toy,
+    TwoTwoHand,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum DamageKind {
+    Fire,
+    Ice,
+    Lightning,
+    Physical,
+    Choking,
+}
+
+impl Eq for ItemDetails {}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub struct Infusion {
+    flags: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Upgrade {
     pub id: u64,
     pub attributes: Vec<UpgradeAttribute>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct UpgradeAttribute {
     pub attribute: String,
     pub modifier: u64,

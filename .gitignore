@@ -1,5 +1,6 @@
-/target
-out.log
-out.json
+/**/target
+/**/out.log
+/**/out.json
+/**/out/*.json
 check.sh
 api-key

@@ -30,7 +30,6 @@ pub struct Log {
     pub time: String,
     #[serde(flatten, rename = "type")]
     pub kind: LogInfo,
-
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -71,7 +70,7 @@ pub enum LogInfo {
         activity: String,
         total_participants: u64,
         participants: Vec<serde_json::Value>,
-    }
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -1,57 +1,96 @@
+use reqwest::Client;
 use uuid::Uuid;
 
-pub use crate::codec::{achievements as codec};
+pub use crate::codec::achievements as codec;
 
-pub async fn achievements(
-    api_base_url: &str, api_key: &str
-) -> Vec<u64> {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/achievements", api_base_url))
-        .bearer_auth(api_key)).await
+pub async fn achievements(client: &Client, api_base_url: &str, api_key: &str) -> Vec<u64> {
+    super::get_json(
+        client
+            .get(format!("{}/v2/achievements", api_base_url))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
 pub async fn achievement(
-    api_base_url: &str, api_key: &str, id: u64
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    id: u64,
 ) -> codec::Achievement {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/achievements/{}", api_base_url, id))
-        .bearer_auth(api_key)).await
+    super::get_json(
+        client
+            .get(format!("{}/v2/achievements/{}", api_base_url, id))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
-pub async fn categories(api_base_url: &str, api_key: &str) -> Vec<u64> {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/achievements/categories", api_base_url))
-        .bearer_auth(api_key)).await
+pub async fn categories(client: &Client, api_base_url: &str, api_key: &str) -> Vec<u64> {
+    super::get_json(
+        client
+            .get(format!("{}/v2/achievements/categories", api_base_url))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
-pub async fn category(api_base_url: &str, api_key: &str, id: u64) -> codec::Category {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/achievements/categories/{}", api_base_url, id))
-        .bearer_auth(api_key)).await
+pub async fn category(
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    id: u64,
+) -> codec::Category {
+    super::get_json(
+        client
+            .get(format!(
+                "{}/v2/achievements/categories/{}",
+                api_base_url, id
+            ))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
-pub async fn daily(api_base_url: &str, api_key: &str) -> Vec<codec::Daily> {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/achievements/daily", api_base_url))
-        .bearer_auth(api_key)).await
+pub async fn daily(client: &Client, api_base_url: &str, api_key: &str) -> Vec<codec::Daily> {
+    super::get_json(
+        client
+            .get(format!("{}/v2/achievements/daily", api_base_url))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
-pub async fn groups(api_base_url: &str, api_key: &str) -> Vec<Uuid> {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/achievements/groups", api_base_url))
-        .bearer_auth(api_key)).await
+pub async fn groups(client: &Client, api_base_url: &str, api_key: &str) -> Vec<Uuid> {
+    super::get_json(
+        client
+            .get(format!("{}/v2/achievements/groups", api_base_url))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
-pub async fn group(api_base_url: &str, api_key: &str, id: impl std::fmt::Display) -> codec::Group {
+pub async fn group(
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    id: impl std::fmt::Display,
+) -> codec::Group {
     let formatted_id = format!("{}", id).to_ascii_uppercase();
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/achievements/groups/{}", api_base_url, formatted_id))
-        .bearer_auth(api_key)).await
+    super::get_json(
+        client
+            .get(format!(
+                "{}/v2/achievements/groups/{}",
+                api_base_url, formatted_id
+            ))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }

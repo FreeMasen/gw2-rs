@@ -1,109 +1,203 @@
+use reqwest::Client;
+
 use crate::codec::characters as codec;
 
+use super::get_paged;
+
 pub async fn backstory(
-    api_base_url: &str, api_key: &str, character: &str,
-)  ->codec::BackStory {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/backstory", api_base_url, character))
-        .bearer_auth(api_key)).await
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    name: &str,
+) -> codec::BackStory {
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters/{}/backstory", api_base_url, name))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
 pub async fn characters(
-    api_base_url: &str, api_key: &str
-) -> Vec<String> {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters", api_base_url))
-        .bearer_auth(api_key)).await
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+) -> Result<Vec<String>, crate::Error> {
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters", api_base_url))
+            .bearer_auth(api_key),
+    )
+    .await
+}
+
+pub async fn get_all_characters(
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+) -> Result<Vec<codec::Character>, crate::Error> {
+    let url = format!("{}/v2/characters", api_base_url);
+    let mut initial = get_paged(&client, &url, api_key, 0, 50).await.unwrap();
+
+    for i in 1..initial.page.total_pages.unwrap_or(1) {
+        let iter = get_paged(&client, &url, api_key, i, 50).await.unwrap();
+        initial.result.extend(iter.result);
+    }
+    Ok(initial.result)
 }
 
 pub async fn character(
-    api_base_url: &str, api_key: &str, name: &str
-) -> codec::Character {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}", api_base_url, name))
-        .bearer_auth(api_key)).await
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    name: &str,
+) -> Result<codec::Character, crate::Error> {
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters/{}", api_base_url, name))
+            .bearer_auth(api_key),
+    )
+    .await
 }
 
-pub async fn core(
-    api_base_url: &str, api_key: &str, name: &str
-) -> codec::Core {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/core", api_base_url, name))
-        .bearer_auth(api_key)).await
+pub async fn core(client: &Client, api_base_url: &str, api_key: &str, name: &str) -> codec::Core {
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters/{}/core", api_base_url, name))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
 pub async fn crafting(
-    api_base_url: &str, api_key: &str, name: &str
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    name: &str,
 ) -> codec::Crafting {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/crafting", api_base_url, name))
-        .bearer_auth(api_key)).await
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters/{}/crafting", api_base_url, name))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
 pub async fn equipment(
-    api_base_url: &str, api_key: &str, name: &str
-) -> codec::Equipment {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/equipment", api_base_url, name))
-        .bearer_auth(api_key)).await
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    name: &str,
+) -> Result<codec::Equipment, crate::Error> {
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters/{}/equipment", api_base_url, name))
+            .bearer_auth(api_key),
+    )
+    .await
 }
 
 pub async fn hero_points(
-    api_base_url: &str, api_key: &str, name: &str
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    name: &str,
 ) -> Vec<String> {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/heropoints", api_base_url, name))
-        .bearer_auth(api_key)).await
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!(
+                "{}/v2/characters/{}/heropoints",
+                api_base_url, name
+            ))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
 pub async fn recipes(
-    api_base_url: &str, api_key: &str, name: &str
-) ->codec::Recipes {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/recipes", api_base_url, name))
-        .bearer_auth(api_key)).await
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    name: &str,
+) -> codec::Recipes {
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters/{}/recipes", api_base_url, name))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
-pub async fn sab(
-    api_base_url: &str, api_key: &str, name: &str
-) -> codec::Sab {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/sab", api_base_url, name))
-        .bearer_auth(api_key)).await
+pub async fn sab(client: &Client, api_base_url: &str, api_key: &str, name: &str) -> codec::Sab {
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters/{}/sab", api_base_url, name))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
 pub async fn skills(
-    api_base_url: &str, api_key: &str, name: &str
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    name: &str,
 ) -> codec::CharacterSkills {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/skills", api_base_url, name))
-        .bearer_auth(api_key)).await
-    }
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters/{}/skills", api_base_url, name))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
+}
 
 pub async fn specializations(
-    api_base_url: &str, api_key: &str, name: &str
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    name: &str,
 ) -> codec::CharacterSpecializations {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/specializations", api_base_url, name))
-        .bearer_auth(api_key)).await
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!(
+                "{}/v2/characters/{}/specializations",
+                api_base_url, name
+            ))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
 
 pub async fn training(
-    api_base_url: &str, api_key: &str, name: &str
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    name: &str,
 ) -> codec::CharacterTraining {
-    let client = reqwest::Client::new();
-    super::get_json(client
-        .get(format!("{}/v2/characters/{}/training", api_base_url, name))
-        .bearer_auth(api_key)).await
+    let name = pct_str::PctString::encode(name.chars(), pct_str::URIReserved);
+    super::get_json(
+        client
+            .get(format!("{}/v2/characters/{}/training", api_base_url, name))
+            .bearer_auth(api_key),
+    )
+    .await
+    .unwrap()
 }
