@@ -4,3 +4,4 @@
 /**/out/*.json
 check.sh
 api-key
+nohup.out

@@ -18,5 +18,6 @@ uuid = { version = "1", default-features = false, features = ["v4", "serde"] }
 
 [workspace]
 members = [
-    "crates/gw2-cli"
+    "crates/gw2-cli",
+    "crates/wallet-watcher"
 ]
