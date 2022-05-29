@@ -7,6 +7,7 @@ edition = "2021"
 
 [dependencies]
 pct-str = "1.1.0"
+log = "0.4"
 reqwest = { version = "0.11", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 serde-enum-str = "0.2.5"
@@ -19,5 +20,6 @@ uuid = { version = "1", default-features = false, features = ["v4", "serde"] }
 [workspace]
 members = [
     "crates/gw2-cli",
-    "crates/wallet-watcher"
+    "crates/wallet-watcher",
+    "crates/gw2-metrics",
 ]

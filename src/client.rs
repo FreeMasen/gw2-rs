@@ -1,4 +1,8 @@
+use std::sync::atomic::{AtomicU64, Ordering};
+
 const DEFAULT_API_URL: &str = "https://api.guildwars2.com";
+const BACKOFF_BASE: u64 = 300;
+static INCREMENTAL_BACKOFF: AtomicU64 = AtomicU64::new(BACKOFF_BASE);
 
 #[derive(Debug, Clone)]
 pub struct Gw2Client {
@@ -76,7 +80,35 @@ impl Gw2Client {
         crate::endpoints::characters::character(&self.client, &self.url_base, &self.api_key, name)
             .await
     }
+
     pub async fn item(&self, id: u64) -> Result<crate::codec::Item, crate::Error> {
-        crate::endpoints::item(&self.client, &self.url_base, &self.api_key, id).await
+        
+        match crate::endpoints::item(&self.client, &self.url_base, &self.api_key, id).await {
+            Ok(value) => {
+                INCREMENTAL_BACKOFF.store(BACKOFF_BASE, Ordering::Relaxed);
+                Ok(value)
+            },
+            Err(crate::Error::RateLimit) => {
+                let backoff = INCREMENTAL_BACKOFF.load(Ordering::Relaxed);
+                INCREMENTAL_BACKOFF.store(backoff << 1, Ordering::Relaxed);
+                tokio::time::sleep(std::time::Duration::from_millis(backoff)).await;
+                crate::endpoints::item(&self.client, &self.url_base, &self.api_key, id).await
+            }
+            Err(e) => Err(e),
+        }
     }
+
+    pub async fn get_luck(&self) -> Result<crate::codec::account::Luck, crate::Error> {
+        let list = crate::endpoints::account::luck(&self.client, &self.url_base, &self.api_key).await?;
+        let mut ret = crate::codec::account::Luck { value: 0 };
+        for luck in list{
+            ret.value += luck.value
+        }
+        Ok(ret)
+    }
+
+    pub async fn get_all_mats(&self) -> Result<Vec<crate::codec::account::Material>, crate::Error> {
+        crate::endpoints::account::materials(&self.client, &self.url_base, &self.api_key).await
+    }
+    
 }

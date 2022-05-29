@@ -131,6 +131,7 @@ pub enum _ItemDetail {
         no_sell_or_sort: bool,
     },
     Consumable {
+        #[serde(rename = "type")]
         kind: ConsumableKind,
         description: Option<String>,
         duration_ms: Option<u64>,
@@ -324,6 +325,10 @@ pub enum UpgradeFlag {
     Torch,
     Trident,
     Warhorn,
+    HeavyArmor,
+    MediumArmor,
+    LightArmor,
+    Trinket,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

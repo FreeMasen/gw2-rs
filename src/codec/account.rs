@@ -60,6 +60,11 @@ pub struct Inventory {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Luck {
+    pub value: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Mastery {
     pub id: u64,
     pub level: u64,

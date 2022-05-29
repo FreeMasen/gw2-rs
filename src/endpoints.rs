@@ -701,17 +701,23 @@ fn extract_links(headers: &HeaderMap) -> Links {
     ret
 }
 
+#[track_caller]
 pub async fn get_json<T>(client: reqwest::RequestBuilder) -> Result<T, crate::Error>
 where
     T: DeserializeOwned,
 {
     let response = client.send().await?;
     let url = response.url().clone();
+    let status = response.status();
+    if status.as_u16() >= 400 && status.as_u16() < 500 {
+        return Err(crate::Error::RateLimit)
+    }
+    log::debug!("{:#?}", response.headers());
     let body = response.text().await?;
     match serde_json::from_str(&body) {
         Ok(ret) => Ok(ret),
         Err(e) => {
-            eprintln!("failed request to {}\n{}", url, body);
+            eprintln!("failed request to {} ({})\n{}", url, status, body);
             panic!("Invalid json: {:?}", e)
         }
     }
