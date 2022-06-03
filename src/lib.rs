@@ -48,4 +48,8 @@ pub enum Error {
     Reqwest(#[from] reqwest::Error),
     #[error("Reached the rate limit on this request")]
     RateLimit,
+    #[error("Request Timed Out")]
+    Timeout,
+    #[error("Unknown error")]
+    Unknown,
 }

@@ -90,6 +90,7 @@ pub struct Glider {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Item {
+    pub id: u64,
     pub name: String,
     pub description: Option<String>,
     // #[serde(rename = "type")]

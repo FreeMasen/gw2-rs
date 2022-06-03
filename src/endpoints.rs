@@ -1,7 +1,7 @@
 use reqwest::{header::HeaderMap, Client};
 use serde::de::DeserializeOwned;
 
-use crate::{Link, Links, PagedResult};
+use crate::{codec::{self, Item}, Error, Link, Links, PagedResult};
 
 pub mod account;
 pub mod achievements;
@@ -220,6 +220,15 @@ pub async fn items(client: &Client, api_base_url: &str, api_key: &str) -> Vec<u6
     .unwrap()
 }
 
+pub async fn items_by_ids(client: &Client, api_base_url: &str, api_key: &str, ids: impl Iterator<Item = impl ToString>) -> Result<Vec<Item>, Error> {
+    get_json(
+        client
+            .get(format!("{}/v2/items?ids={}", api_base_url, ids.map(|i| i.to_string()).collect::<Vec<_>>().join(",")))
+            .bearer_auth(api_key),
+    )
+    .await
+}
+
 pub async fn item(
     client: &Client,
     api_base_url: &str,
@@ -356,6 +365,22 @@ pub async fn materials(client: &Client, api_base_url: &str, api_key: &str) -> Ve
     )
     .await
     .unwrap()
+}
+
+pub async fn all_materials(
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+) -> Result<Vec<codec::Material>, Error> {
+    let mut ret = Vec::new();
+    let url = format!("{}/v2/materials", api_base_url);
+    let initial = get_paged::<crate::codec::Material>(&client, &url, api_key, 0, 50).await?;
+    ret.extend(initial.result);
+    for i in 1..initial.page.total_pages.unwrap_or(1) {
+        let iter = get_paged::<crate::codec::Material>(&client, &url, api_key, i, 50).await?;
+        ret.extend(iter.result);
+    }
+    Ok(ret)
 }
 
 pub async fn mini(
@@ -709,10 +734,17 @@ where
     let response = client.send().await?;
     let url = response.url().clone();
     let status = response.status();
-    if status.as_u16() >= 400 && status.as_u16() < 500 {
-        return Err(crate::Error::RateLimit)
+    match status.as_u16() {
+        200 => {}
+        429 => return Err(Error::RateLimit),
+        507 => return Err(Error::Timeout),
+        status => {
+            log::warn!("Unknown status: {}", status);
+        }
     }
-    log::debug!("{:#?}", response.headers());
+    if status.as_u16() >= 400 && status.as_u16() < 500 {
+        return Err(crate::Error::RateLimit);
+    }
     let body = response.text().await?;
     match serde_json::from_str(&body) {
         Ok(ret) => Ok(ret),

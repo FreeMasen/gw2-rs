@@ -126,7 +126,11 @@ pub async fn inventory(
     .unwrap()
 }
 
-pub async fn luck(client: &Client, api_base_url: &str, api_key: &str) -> Result<Vec<codec::Luck>, crate::Error> {
+pub async fn luck(
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+) -> Result<Vec<codec::Luck>, crate::Error> {
     super::get_json(
         client
             .get(format!("{}/v2/account/luck", api_base_url))
@@ -169,7 +173,11 @@ pub async fn mastery_points(
     .unwrap()
 }
 
-pub async fn materials(client: &Client, api_base_url: &str, api_key: &str) -> Result<Vec<codec::Material>, crate::Error> {
+pub async fn materials(
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+) -> Result<Vec<codec::Material>, crate::Error> {
     super::get_json(
         client
             .get(format!("{}/v2/account/materials", api_base_url))
