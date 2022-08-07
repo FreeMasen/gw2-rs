@@ -256,12 +256,15 @@ pub async fn titles(client: &Client, api_base_url: &str, api_key: &str) -> Vec<u
     .unwrap()
 }
 
-pub async fn wallet(client: &Client, api_base_url: &str, api_key: &str) -> Vec<codec::Wallet> {
+pub async fn wallet(
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+) -> Result<Vec<codec::Wallet>, crate::Error> {
     super::get_json(
         client
             .get(format!("{}/v2/account/wallet", api_base_url))
             .bearer_auth(api_key),
     )
     .await
-    .unwrap()
 }

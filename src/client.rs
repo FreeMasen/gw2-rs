@@ -62,7 +62,7 @@ impl Gw2Client {
     pub async fn get_all_currencies(&self) -> Result<Vec<crate::codec::Currency>, Error> {
         crate::endpoints::get_all_currencies(&self.client, &self.url_base, &self.api_key).await
     }
-    pub async fn get_account_wallet(&self) -> Vec<crate::codec::account::Wallet> {
+    pub async fn get_account_wallet(&self) -> Result<Vec<crate::codec::account::Wallet>, Error> {
         crate::endpoints::account::wallet(&self.client, &self.url_base, &self.api_key).await
     }
     pub async fn get_all_characters(
@@ -121,10 +121,19 @@ impl Gw2Client {
 
     pub async fn get_all_material_defs(&self) -> Result<Vec<crate::codec::Item>, Error> {
         let mut ret = Vec::new();
-        let cats = crate::endpoints::all_materials(&self.client, &self.url_base, &self.api_key).await?;
+        let cats =
+            crate::endpoints::all_materials(&self.client, &self.url_base, &self.api_key).await?;
         for cat in cats {
             for chunk in cat.items.chunks(75) {
-                ret.extend(crate::endpoints::items_by_ids(&self.client, &self.url_base, &self.api_key, chunk.iter()).await?);
+                ret.extend(
+                    crate::endpoints::items_by_ids(
+                        &self.client,
+                        &self.url_base,
+                        &self.api_key,
+                        chunk.iter(),
+                    )
+                    .await?,
+                );
             }
         }
 

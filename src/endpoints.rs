@@ -1,7 +1,10 @@
 use reqwest::{header::HeaderMap, Client};
 use serde::de::DeserializeOwned;
 
-use crate::{codec::{self, Item}, Error, Link, Links, PagedResult};
+use crate::{
+    codec::{self, Item},
+    Error, Link, Links, PagedResult,
+};
 
 pub mod account;
 pub mod achievements;
@@ -220,10 +223,19 @@ pub async fn items(client: &Client, api_base_url: &str, api_key: &str) -> Vec<u6
     .unwrap()
 }
 
-pub async fn items_by_ids(client: &Client, api_base_url: &str, api_key: &str, ids: impl Iterator<Item = impl ToString>) -> Result<Vec<Item>, Error> {
+pub async fn items_by_ids(
+    client: &Client,
+    api_base_url: &str,
+    api_key: &str,
+    ids: impl Iterator<Item = impl ToString>,
+) -> Result<Vec<Item>, Error> {
     get_json(
         client
-            .get(format!("{}/v2/items?ids={}", api_base_url, ids.map(|i| i.to_string()).collect::<Vec<_>>().join(",")))
+            .get(format!(
+                "{}/v2/items?ids={}",
+                api_base_url,
+                ids.map(|i| i.to_string()).collect::<Vec<_>>().join(",")
+            ))
             .bearer_auth(api_key),
     )
     .await

@@ -53,15 +53,15 @@ async fn main() {
             update_currencies(&client, &mut currencies).await;
             last_refresh = SystemTime::now();
         }
-        wallet(&client, &currencies).await;
+        wallet(&client, &currencies).await.unwrap();
         luck(&client).await;
         materials(&client, &mut mats).await;
         tokio::time::sleep(std::time::Duration::from_secs(opts.tick)).await;
     }
 }
 
-async fn wallet(client: &Gw2Client, currencies: &HashMap<u64, String>) {
-    let wallets = client.get_account_wallet().await;
+async fn wallet(client: &Gw2Client, currencies: &HashMap<u64, String>) -> Result<(), gw2::Error> {
+    let wallets = client.get_account_wallet().await?;
     for wallet in wallets {
         let name = if let Some(name) = currencies.get(&wallet.id) {
             name.to_string()
@@ -72,6 +72,7 @@ async fn wallet(client: &Gw2Client, currencies: &HashMap<u64, String>) {
             "currency" => name
         )
     }
+    Ok(())
 }
 
 async fn luck(client: &Gw2Client) {

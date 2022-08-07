@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use comfy_table::Cell;
 use gw2::{
     client::Gw2Client,
-    codec::{InfixUpgrade, Item, Upgrade, _ItemDetail},
+    codec::{InfixUpgrade, Item, _ItemDetail},
 };
 use structopt::StructOpt;
 
@@ -277,7 +277,7 @@ fn print_item_table(item: Option<&Item>) {
     println!("{}", table);
 }
 
-fn color_from_rarity(rarity: &str) -> comfy_table::Color {
+pub fn color_from_rarity(rarity: &str) -> comfy_table::Color {
     match rarity {
         "Legendary" => comfy_table::Color::Rgb {
             r: 0xa0,

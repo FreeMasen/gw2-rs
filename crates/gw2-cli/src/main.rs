@@ -4,6 +4,7 @@ use std::collections::HashMap;
 use structopt::StructOpt;
 
 pub mod characters;
+mod bank;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name = "gw2", about = "query the gw2 api endpoints")]
@@ -26,6 +27,10 @@ pub enum Cmd {
         #[structopt(subcommand)]
         cmd: Option<characters::SubCmds>,
     },
+    Materials {
+        #[structopt(short, long)]
+        name: Option<String>,
+    },
 }
 
 #[tokio::main]
@@ -47,11 +52,12 @@ async fn main() {
     match opts.command {
         Cmd::Wallet { name } => wallet(&client, name.as_ref().map(|s| s.as_str())).await,
         Cmd::Characters { cmd } => characters::handle_subcommand(&client, cmd).await,
+        Cmd::Materials { name } =>bank::handle_subcommand(client, name).await,
     }
 }
 
 async fn wallet(client: &Gw2Client, name: Option<&str>) {
-    let owned = client.get_account_wallet().await;
+    let owned = client.get_account_wallet().await.unwrap();
     let first_part = client.get_all_currencies().await.unwrap();
     let mut map = HashMap::new();
     for currency in first_part.into_iter() {
