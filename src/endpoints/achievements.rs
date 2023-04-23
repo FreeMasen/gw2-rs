@@ -1,4 +1,4 @@
-use reqwest::Client;
+use reqwest_middleware::ClientWithMiddleware as Client;
 use uuid::Uuid;
 
 pub use crate::codec::achievements as codec;

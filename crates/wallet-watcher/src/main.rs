@@ -17,7 +17,7 @@ struct Opts {
 #[tokio::main]
 async fn main() {
     let opts = Opts::from_args();
-    let client = Gw2Client::default().api_key(opts.api_key);
+    let client = Gw2Client::builder().api_key(opts.api_key).build();
     let conn = if opts.mem {
         Connection::open_in_memory()
     } else {

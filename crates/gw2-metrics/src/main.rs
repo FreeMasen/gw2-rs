@@ -4,6 +4,8 @@ use std::{
 };
 
 use gw2::client::Gw2Client;
+use http_cache_reqwest::{CACacheManager, Cache, CacheMode, HttpCache};
+use reqwest_retry::{policies::ExponentialBackoff, RetryTransientMiddleware};
 use structopt::StructOpt;
 
 #[derive(Debug, StructOpt)]
@@ -16,6 +18,9 @@ struct Opts {
     /// The port to expose a scrape endpoint at
     #[structopt(long, short)]
     port: Option<u16>,
+    /// The file path to store the http cache
+    #[structopt(long, short)]
+    cache_path: Option<String>,
 }
 
 #[tokio::main]
@@ -37,7 +42,9 @@ async fn main() {
         "The contents of an account material storage"
     );
     let mut currencies = HashMap::new();
-    let client = Gw2Client::default().api_key(&opts.api_key);
+    log::trace!("building client");
+    let client = init_client(&opts.api_key, opts.cache_path.as_ref().map(|s| s.as_str()));
+    log::trace!("getting material defs");
     let mut mats = client
         .get_all_material_defs()
         .await
@@ -46,6 +53,7 @@ async fn main() {
         .map(|mat| (mat.id, mat.name))
         .collect();
     let mut last_refresh = UNIX_EPOCH;
+    log::trace!("Starting loop");
     loop {
         if SystemTime::now().duration_since(last_refresh).unwrap()
             >= Duration::from_secs(24 * 60 * 60)
@@ -60,6 +68,26 @@ async fn main() {
     }
 }
 
+fn init_client(api_key: &str, cache_path: Option<&str>) -> Gw2Client {
+    let retry_policy = ExponentialBackoff::builder().build_with_max_retries(10);
+    let retry_middleware = RetryTransientMiddleware::new_with_policy(retry_policy);
+    let mut builder = Gw2Client::builder()
+        .api_key(&api_key)
+        .middleware(LoggingMiddleware)
+        .middleware(retry_middleware);
+    if let Some(cache) = cache_path {
+        log::trace!("with a cache: {}", cache);
+        builder = builder.middleware(Cache(HttpCache {
+            mode: CacheMode::Default,
+            manager: CACacheManager {
+                path: cache.to_string(),
+            },
+            options: None,
+        }))
+    }
+    builder.build()
+}
+
 async fn wallet(client: &Gw2Client, currencies: &HashMap<u64, String>) {
     let wallets = client.get_account_wallet().await;
     for wallet in wallets {
@@ -68,7 +96,7 @@ async fn wallet(client: &Gw2Client, currencies: &HashMap<u64, String>) {
         } else {
             continue;
         };
-        metrics::gauge!("account.wallet", wallet.value.min(4_295_450) as f64,
+        metrics::gauge!("account.wallet", wallet.value as f64,
             "currency" => name
         )
     }
@@ -76,7 +104,7 @@ async fn wallet(client: &Gw2Client, currencies: &HashMap<u64, String>) {
 
 async fn luck(client: &Gw2Client) {
     let luck = client.get_luck().await.unwrap();
-    metrics::gauge!("account.luck", luck.value as f64);
+    metrics::gauge!("account.luck", luck.value.min(4_295_450) as f64);
 }
 
 async fn materials(client: &Gw2Client, known_mats: &mut HashMap<u64, String>) {
@@ -103,5 +131,31 @@ async fn update_currencies(client: &Gw2Client, out: &mut HashMap<u64, String>) {
                 |value| *value = name
             })
             .or_insert(currency.name);
+    }
+}
+
+use reqwest::{Request, Response};
+use reqwest_middleware::{Middleware, Next};
+use task_local_extensions::Extensions;
+struct LoggingMiddleware;
+#[async_trait::async_trait]
+impl Middleware for LoggingMiddleware {
+    async fn handle(
+        &self,
+        req: Request,
+        extensions: &mut Extensions,
+        next: Next<'_>,
+    ) -> reqwest_middleware::Result<Response> {
+        let method = req.method().clone();
+        let path = req.url().clone();
+        let start = std::time::SystemTime::now();
+        let res = next.run(req, extensions).await;
+        let end = std::time::SystemTime::now();
+        let dur = end
+            .duration_since(start)
+            .unwrap_or_else(|_| Duration::from_secs(0));
+
+        log::debug!("{} request to {} took {:?}", method, path, dur);
+        res
     }
 }

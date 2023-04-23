@@ -1,6 +1,5 @@
-use reqwest::Client;
-
 use crate::codec::floors as codec;
+use reqwest_middleware::ClientWithMiddleware as Client;
 
 pub async fn continents(client: &Client, api_base_url: &str, api_key: &str) -> Vec<u64> {
     super::get_json(

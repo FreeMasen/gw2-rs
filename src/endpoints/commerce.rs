@@ -1,6 +1,5 @@
-use reqwest::Client;
-
 use crate::codec::commerce as codec;
+use reqwest_middleware::ClientWithMiddleware as Client;
 
 pub async fn transactions(client: &Client, api_base_url: &str, api_key: &str) -> Vec<String> {
     super::get_json(

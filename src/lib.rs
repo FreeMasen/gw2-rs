@@ -46,6 +46,8 @@ pub struct Link {
 pub enum Error {
     #[error("{0}")]
     Reqwest(#[from] reqwest::Error),
+    #[error("{0}")]
+    WrappedReqwest(#[from] reqwest_middleware::Error),
     #[error("Reached the rate limit on this request")]
     RateLimit,
     #[error("Request Timed Out")]

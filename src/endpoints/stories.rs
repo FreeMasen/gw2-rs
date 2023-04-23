@@ -1,5 +1,4 @@
-use reqwest::Client;
-
+use reqwest_middleware::ClientWithMiddleware as Client;
 use uuid::Uuid;
 
 use crate::{codec::stories as codec, UpperHyphenated};

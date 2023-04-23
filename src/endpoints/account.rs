@@ -1,6 +1,5 @@
 use crate::codec::{account as codec, Cat, Node};
-use reqwest::Client;
-
+use reqwest_middleware::ClientWithMiddleware as Client;
 pub async fn account(client: &Client, api_base_url: &str, api_key: &str) -> codec::Account {
     super::get_json(
         client

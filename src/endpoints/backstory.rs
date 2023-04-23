@@ -1,6 +1,5 @@
-use reqwest::Client;
-
 use crate::codec::backstory as codec;
+use reqwest_middleware::ClientWithMiddleware as Client;
 
 pub async fn answers(client: &Client, api_base_url: &str, api_key: &str) -> Vec<String> {
     super::get_json(

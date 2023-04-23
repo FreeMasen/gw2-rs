@@ -1,6 +1,5 @@
-use reqwest::Client;
-
 use crate::codec::traits as codec;
+use reqwest_middleware::ClientWithMiddleware as Client;
 
 pub async fn traits(client: &Client, api_base_url: &str, api_key: &str) -> Vec<u64> {
     super::get_json(

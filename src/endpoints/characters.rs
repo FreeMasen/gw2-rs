@@ -1,6 +1,5 @@
-use reqwest::Client;
-
 use crate::codec::characters as codec;
+use reqwest_middleware::ClientWithMiddleware as Client;
 
 use super::get_paged;
 
